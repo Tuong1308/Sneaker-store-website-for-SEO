@@ -80,7 +80,10 @@ export default function AdminDashboard() {
 
   const [activeTab, setActiveTab] = useState<TabType>("products");
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "warning" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error" | "warning";
+  } | null>(null);
 
   // Products state
   const [products, setProducts] = useState<Product[]>([]);
@@ -90,7 +93,9 @@ export default function AdminDashboard() {
 
   // Orders state
   const [orders, setOrders] = useState<Order[]>([]);
-  const [orderStatusMap, setOrderStatusMap] = useState<Record<string, string>>({});
+  const [orderStatusMap, setOrderStatusMap] = useState<Record<string, string>>(
+    {},
+  );
 
   // Users state
   const [users, setUsers] = useState<User[]>([]);
@@ -125,7 +130,10 @@ export default function AdminDashboard() {
     fetchData(activeTab);
   }, [isAuthenticated, user, router, activeTab]);
 
-  const showToast = (message: string, type: "success" | "error" | "warning" = "success") => {
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "warning" = "success",
+  ) => {
     setToast({ message, type });
   };
 
@@ -225,29 +233,36 @@ export default function AdminDashboard() {
   };
 
   // Product handlers
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSizeChange = (size: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       sizes: {
         ...prev.sizes,
-        [size]: value
-      }
+        [size]: value,
+      },
     }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const urls = e.target.value.split(',').map(url => url.trim()).filter(url => url);
-    setFormData(prev => ({
+    const urls = e.target.value
+      .split(",")
+      .map((url) => url.trim())
+      .filter((url) => url);
+    setFormData((prev) => ({
       ...prev,
-      images: urls
+      images: urls,
     }));
   };
 
@@ -260,7 +275,11 @@ export default function AdminDashboard() {
       showToast("Thương hiệu không được để trống", "warning");
       return false;
     }
-    if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
+    if (
+      !formData.price ||
+      isNaN(Number(formData.price)) ||
+      Number(formData.price) <= 0
+    ) {
       showToast("Giá sản phẩm phải là số dương", "warning");
       return false;
     }
@@ -269,7 +288,7 @@ export default function AdminDashboard() {
       return false;
     }
 
-    const hasValidSize = expectedSizes.some(size => {
+    const hasValidSize = expectedSizes.some((size) => {
       const qty = Number(formData.sizes[size] || 0);
       return qty > 0;
     });
@@ -304,12 +323,18 @@ export default function AdminDashboard() {
     if (!validateForm()) return;
 
     try {
-      const normalizedSizes = expectedSizes.reduce((acc, size) => {
-        acc[size] = Number(formData.sizes[size] || 0);
-        return acc;
-      }, {} as Record<string, number>);
+      const normalizedSizes = expectedSizes.reduce(
+        (acc, size) => {
+          acc[size] = Number(formData.sizes[size] || 0);
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-      const totalSizes = expectedSizes.reduce((total, size) => total + Number(formData.sizes[size] || 0), 0);
+      const totalSizes = expectedSizes.reduce(
+        (total, size) => total + Number(formData.sizes[size] || 0),
+        0,
+      );
 
       const productData = {
         productName: formData.productName,
@@ -352,10 +377,13 @@ export default function AdminDashboard() {
       brand: product.brand,
       price: product.price.toString(),
       category: product.category,
-      sizes: expectedSizes.reduce((acc, size) => ({
-        ...acc,
-        [size]: (product.sizes[size] || 0).toString()
-      }), {}),
+      sizes: expectedSizes.reduce(
+        (acc, size) => ({
+          ...acc,
+          [size]: (product.sizes[size] || 0).toString(),
+        }),
+        {},
+      ),
       description: product.description,
       quantity: product.quantity.toString(),
       images: product.images,
@@ -367,12 +395,18 @@ export default function AdminDashboard() {
     if (!validateForm() || !editingProduct) return;
 
     try {
-      const normalizedSizes = expectedSizes.reduce((acc, size) => {
-        acc[size] = Number(formData.sizes[size] || 0);
-        return acc;
-      }, {} as Record<string, number>);
+      const normalizedSizes = expectedSizes.reduce(
+        (acc, size) => {
+          acc[size] = Number(formData.sizes[size] || 0);
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-      const totalSizes = expectedSizes.reduce((total, size) => total + Number(formData.sizes[size] || 0), 0);
+      const totalSizes = expectedSizes.reduce(
+        (total, size) => total + Number(formData.sizes[size] || 0),
+        0,
+      );
 
       const productData = {
         productName: formData.productName,
@@ -385,14 +419,17 @@ export default function AdminDashboard() {
         images: formData.images,
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/product/update/${editingProduct._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${API_BASE_URL}/api/product/update/${editingProduct._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(productData),
         },
-        body: JSON.stringify(productData),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Không thể cập nhật sản phẩm");
@@ -413,12 +450,15 @@ export default function AdminDashboard() {
     if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/product/delete/${productId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${API_BASE_URL}/api/product/delete/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Không thể xóa sản phẩm");
@@ -433,24 +473,30 @@ export default function AdminDashboard() {
   };
 
   // Order handlers
-  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+  const handleUpdateOrderStatus = async (
+    orderId: string,
+    newStatus: string,
+  ) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/order/update/${orderId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/order/update/${orderId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
         },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Không thể cập nhật trạng thái");
       }
 
-      setOrderStatusMap(prev => ({
+      setOrderStatusMap((prev) => ({
         ...prev,
-        [orderId]: newStatus
+        [orderId]: newStatus,
       }));
       showToast("Cập nhật trạng thái đơn hàng thành công!", "success");
     } catch (error) {
@@ -509,8 +555,12 @@ export default function AdminDashboard() {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-gray-900">Quản lý sản phẩm</h2>
-                    <p className="text-gray-600 mt-1">Tổng cộng: {products.length} sản phẩm</p>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      Quản lý sản phẩm
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      Tổng cộng: {products.length} sản phẩm
+                    </p>
                   </div>
                   <button
                     onClick={() => setShowAddModal(true)}
@@ -525,18 +575,33 @@ export default function AdminDashboard() {
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hình ảnh</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Tên sản phẩm</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thương hiệu</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Giá</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Số lượng</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thao tác</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Hình ảnh
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Tên sản phẩm
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Thương hiệu
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Giá
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Số lượng
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Thao tác
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {products.length === 0 ? (
                           <tr>
-                            <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                            <td
+                              colSpan={6}
+                              className="px-6 py-8 text-center text-gray-500"
+                            >
                               Chưa có sản phẩm nào
                             </td>
                           </tr>
@@ -549,14 +614,23 @@ export default function AdminDashboard() {
                                   alt={product.productName}
                                   className="w-12 h-12 object-cover rounded"
                                   onError={(e) => {
-                                    (e.target as HTMLImageElement).src = "/placeholder.png";
+                                    (e.target as HTMLImageElement).src =
+                                      "/placeholder.png";
                                   }}
                                 />
                               </td>
-                              <td className="px-6 py-4 font-medium text-gray-900">{product.productName}</td>
-                              <td className="px-6 py-4 text-gray-700">{product.brand}</td>
-                              <td className="px-6 py-4 text-gray-700">{formatPrice(product.price)}</td>
-                              <td className="px-6 py-4 text-gray-700">{product.quantity}</td>
+                              <td className="px-6 py-4 font-medium text-gray-900">
+                                {product.productName}
+                              </td>
+                              <td className="px-6 py-4 text-gray-700">
+                                {product.brand}
+                              </td>
+                              <td className="px-6 py-4 text-gray-700">
+                                {formatPrice(product.price)}
+                              </td>
+                              <td className="px-6 py-4 text-gray-700">
+                                {product.quantity}
+                              </td>
                               <td className="px-6 py-4">
                                 <div className="flex gap-2">
                                   <button
@@ -566,7 +640,9 @@ export default function AdminDashboard() {
                                     Sửa
                                   </button>
                                   <button
-                                    onClick={() => handleDeleteProduct(product._id)}
+                                    onClick={() =>
+                                      handleDeleteProduct(product._id)
+                                    }
                                     className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
                                   >
                                     Xóa
@@ -587,8 +663,12 @@ export default function AdminDashboard() {
             {activeTab === "orders" && (
               <div>
                 <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-gray-900">Quản lý đơn hàng</h2>
-                  <p className="text-gray-600 mt-1">Tổng cộng: {orders.length} đơn hàng</p>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Quản lý đơn hàng
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    Tổng cộng: {orders.length} đơn hàng
+                  </p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -596,46 +676,86 @@ export default function AdminDashboard() {
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Mã đơn hàng</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Khách hàng</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Email</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Tổng tiền</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Ngày đặt</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Trạng thái</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Cập nhật</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Mã đơn hàng
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Khách hàng
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Email
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Tổng tiền
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Ngày đặt
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Trạng thái
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Cập nhật
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {orders.length === 0 ? (
                           <tr>
-                            <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                            <td
+                              colSpan={7}
+                              className="px-6 py-8 text-center text-gray-500"
+                            >
                               Chưa có đơn hàng nào
                             </td>
                           </tr>
                         ) : (
                           orders.map((order) => (
                             <tr key={order._id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 font-medium text-gray-900 text-sm">{order._id.slice(-6)}</td>
-                              <td className="px-6 py-4 text-gray-900">{order.user.userName}</td>
-                              <td className="px-6 py-4 text-gray-700 text-sm">{order.user.email}</td>
-                              <td className="px-6 py-4 font-medium text-red-600">{formatPrice(order.totalAmount)}</td>
+                              <td className="px-6 py-4 font-medium text-gray-900 text-sm">
+                                {order._id.slice(-6)}
+                              </td>
+                              <td className="px-6 py-4 text-gray-900">
+                                {order.user.userName}
+                              </td>
                               <td className="px-6 py-4 text-gray-700 text-sm">
-                                {new Date(order.orderTime).toLocaleDateString('vi-VN')}
+                                {order.user.email}
+                              </td>
+                              <td className="px-6 py-4 font-medium text-red-600">
+                                {formatPrice(order.totalAmount)}
+                              </td>
+                              <td className="px-6 py-4 text-gray-700 text-sm">
+                                {new Date(order.orderTime).toLocaleDateString(
+                                  "vi-VN",
+                                )}
                               </td>
                               <td className="px-6 py-4">
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  orderStatusMap[order._id] === 'completed' ? 'bg-green-100 text-green-800' :
-                                  orderStatusMap[order._id] === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                  orderStatusMap[order._id] === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
+                                <span
+                                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    orderStatusMap[order._id] === "completed"
+                                      ? "bg-green-100 text-green-800"
+                                      : orderStatusMap[order._id] === "pending"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : orderStatusMap[order._id] ===
+                                            "cancelled"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-gray-100 text-gray-800"
+                                  }`}
+                                >
                                   {orderStatusMap[order._id] || order.status}
                                 </span>
                               </td>
                               <td className="px-6 py-4">
                                 <select
-                                  value={orderStatusMap[order._id] || order.status}
-                                  onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
+                                  value={
+                                    orderStatusMap[order._id] || order.status
+                                  }
+                                  onChange={(e) =>
+                                    handleUpdateOrderStatus(
+                                      order._id,
+                                      e.target.value,
+                                    )
+                                  }
                                   className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-red-500"
                                 >
                                   <option value="pending">Chờ xử lý</option>
@@ -657,8 +777,12 @@ export default function AdminDashboard() {
             {activeTab === "users" && (
               <div>
                 <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-gray-900">Quản lý người dùng</h2>
-                  <p className="text-gray-600 mt-1">Tổng cộng: {users.length} người dùng</p>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Quản lý người dùng
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    Tổng cộng: {users.length} người dùng
+                  </p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -666,30 +790,51 @@ export default function AdminDashboard() {
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Tên người dùng</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Email</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Số điện thoại</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Role</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Tên người dùng
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Email
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Số điện thoại
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Role
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {users.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                            <td
+                              colSpan={4}
+                              className="px-6 py-8 text-center text-gray-500"
+                            >
                               Chưa có người dùng nào
                             </td>
                           </tr>
                         ) : (
                           users.map((userItem) => (
                             <tr key={userItem._id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 font-medium text-gray-900">{userItem.userName}</td>
-                              <td className="px-6 py-4 text-gray-700">{userItem.email}</td>
-                              <td className="px-6 py-4 text-gray-700">{userItem.telephone || "N/A"}</td>
+                              <td className="px-6 py-4 font-medium text-gray-900">
+                                {userItem.userName}
+                              </td>
+                              <td className="px-6 py-4 text-gray-700">
+                                {userItem.email}
+                              </td>
+                              <td className="px-6 py-4 text-gray-700">
+                                {userItem.telephone || "N/A"}
+                              </td>
                               <td className="px-6 py-4">
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  userItem.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                                }`}>
-                                  {userItem.role === 'admin' ? 'Admin' : 'User'}
+                                <span
+                                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    userItem.role === "admin"
+                                      ? "bg-purple-100 text-purple-800"
+                                      : "bg-blue-100 text-blue-800"
+                                  }`}
+                                >
+                                  {userItem.role === "admin" ? "Admin" : "User"}
                                 </span>
                               </td>
                             </tr>
@@ -706,8 +851,12 @@ export default function AdminDashboard() {
             {activeTab === "vouchers" && (
               <div>
                 <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-gray-900">Quản lý mã giảm giá</h2>
-                  <p className="text-gray-600 mt-1">Tổng cộng: {vouchers.length} mã</p>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Quản lý mã giảm giá
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    Tổng cộng: {vouchers.length} mã
+                  </p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -715,35 +864,58 @@ export default function AdminDashboard() {
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Mã giảm giá</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Mô tả</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Loại</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Giá trị</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Ngày hết hạn</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Mã giảm giá
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Mô tả
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Loại
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Giá trị
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                            Ngày hết hạn
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {vouchers.length === 0 ? (
                           <tr>
-                            <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                            <td
+                              colSpan={5}
+                              className="px-6 py-8 text-center text-gray-500"
+                            >
                               Chưa có mã giảm giá nào
                             </td>
                           </tr>
                         ) : (
                           vouchers.map((voucher) => (
                             <tr key={voucher._id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 font-medium text-gray-900 bg-yellow-50 text-yellow-900">{voucher.voucherName}</td>
-                              <td className="px-6 py-4 text-gray-700">Mã giảm giá</td>
+                              <td className="px-6 py-4 font-medium text-gray-900 bg-yellow-50 text-yellow-900">
+                                {voucher.voucherName}
+                              </td>
+                              <td className="px-6 py-4 text-gray-700">
+                                Mã giảm giá
+                              </td>
                               <td className="px-6 py-4">
                                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
-                                  {voucher.discountType === 'percentage' ? 'Phần trăm' : 'Tiền mặt'}
+                                  {voucher.discountType === "percentage"
+                                    ? "Phần trăm"
+                                    : "Tiền mặt"}
                                 </span>
                               </td>
                               <td className="px-6 py-4 font-medium text-red-600">
-                                {voucher.discountType === 'percentage' ? `${voucher.discount}%` : formatPrice(voucher.discount)}
+                                {voucher.discountType === "percentage"
+                                  ? `${voucher.discount}%`
+                                  : formatPrice(voucher.discount)}
                               </td>
                               <td className="px-6 py-4 text-gray-700">
-                                {new Date(voucher.expiryDate).toLocaleDateString('vi-VN')}
+                                {new Date(
+                                  voucher.expiryDate,
+                                ).toLocaleDateString("vi-VN")}
                               </td>
                             </tr>
                           ))
@@ -767,7 +939,9 @@ export default function AdminDashboard() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tên sản phẩm</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tên sản phẩm
+                  </label>
                   <input
                     type="text"
                     name="productName"
@@ -779,7 +953,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Thương hiệu</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Thương hiệu
+                  </label>
                   <input
                     type="text"
                     name="brand"
@@ -792,7 +968,9 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Giá</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Giá
+                    </label>
                     <input
                       type="number"
                       name="price"
@@ -804,7 +982,9 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Danh mục
+                    </label>
                     <select
                       name="category"
                       value={formData.category}
@@ -812,22 +992,30 @@ export default function AdminDashboard() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
                       {validCategories.map((category) => (
-                        <option key={category} value={category}>{category}</option>
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Size và số lượng</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Size và số lượng
+                  </label>
                   <div className="grid grid-cols-3 gap-2">
                     {expectedSizes.map((size) => (
                       <div key={size}>
-                        <label className="block text-xs text-gray-600 mb-1">{size}</label>
+                        <label className="block text-xs text-gray-600 mb-1">
+                          {size}
+                        </label>
                         <input
                           type="number"
                           value={formData.sizes[size]}
-                          onChange={(e) => handleSizeChange(size, e.target.value)}
+                          onChange={(e) =>
+                            handleSizeChange(size, e.target.value)
+                          }
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-red-500"
                           placeholder="0"
                           min="0"
@@ -838,7 +1026,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mô tả
+                  </label>
                   <textarea
                     name="description"
                     value={formData.description}
@@ -850,10 +1040,12 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh (URL, cách nhau bằng dấu phẩy)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hình ảnh (URL, cách nhau bằng dấu phẩy)
+                  </label>
                   <input
                     type="text"
-                    value={formData.images.join(', ')}
+                    value={formData.images.join(", ")}
                     onChange={handleImageChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                     placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
@@ -892,7 +1084,9 @@ export default function AdminDashboard() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tên sản phẩm</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tên sản phẩm
+                  </label>
                   <input
                     type="text"
                     name="productName"
@@ -904,7 +1098,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Thương hiệu</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Thương hiệu
+                  </label>
                   <input
                     type="text"
                     name="brand"
@@ -917,7 +1113,9 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Giá</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Giá
+                    </label>
                     <input
                       type="number"
                       name="price"
@@ -929,7 +1127,9 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Danh mục
+                    </label>
                     <select
                       name="category"
                       value={formData.category}
@@ -937,22 +1137,30 @@ export default function AdminDashboard() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
                       {validCategories.map((category) => (
-                        <option key={category} value={category}>{category}</option>
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Size và số lượng</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Size và số lượng
+                  </label>
                   <div className="grid grid-cols-3 gap-2">
                     {expectedSizes.map((size) => (
                       <div key={size}>
-                        <label className="block text-xs text-gray-600 mb-1">{size}</label>
+                        <label className="block text-xs text-gray-600 mb-1">
+                          {size}
+                        </label>
                         <input
                           type="number"
                           value={formData.sizes[size]}
-                          onChange={(e) => handleSizeChange(size, e.target.value)}
+                          onChange={(e) =>
+                            handleSizeChange(size, e.target.value)
+                          }
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-red-500"
                           placeholder="0"
                           min="0"
@@ -963,7 +1171,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mô tả
+                  </label>
                   <textarea
                     name="description"
                     value={formData.description}
@@ -975,10 +1185,12 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh (URL, cách nhau bằng dấu phẩy)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hình ảnh (URL, cách nhau bằng dấu phẩy)
+                  </label>
                   <input
                     type="text"
-                    value={formData.images.join(', ')}
+                    value={formData.images.join(", ")}
                     onChange={handleImageChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                     placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
@@ -1011,11 +1223,7 @@ export default function AdminDashboard() {
 
       {/* Toast */}
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={hideToast}
-        />
+        <Toast message={toast.message} type={toast.type} onClose={hideToast} />
       )}
     </div>
   );
