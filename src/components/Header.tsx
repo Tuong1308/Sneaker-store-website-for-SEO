@@ -59,16 +59,54 @@ export default function Header() {
             </Link>
             <div className="relative group">
               <button className="hover:text-red-500 transition flex items-center gap-1">
-                Thương hiệu
+                Nam
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </button>
               <div className="absolute top-full left-0 bg-white shadow-lg rounded-lg py-2 min-w-[200px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <Link href="/collections/nam" className="block px-4 py-2 hover:bg-gray-100 font-bold">
+                  Tất cả Nam
+                </Link>
+                <Link href="/collections/nam?category=giay-the-thao" className="block px-4 py-2 hover:bg-gray-100">
+                  Giày Nam
+                </Link>
+                <Link href="/collections/nam?category=quan-ao" className="block px-4 py-2 hover:bg-gray-100">
+                  Quần áo Nam
+                </Link>
+              </div>
+            </div>
+            <div className="relative group">
+              <button className="hover:text-red-500 transition flex items-center gap-1">
+                Nữ
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <div className="absolute top-full left-0 bg-white shadow-lg rounded-lg py-2 min-w-[200px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <Link href="/collections/nu" className="block px-4 py-2 hover:bg-gray-100 font-bold">
+                  Tất cả Nữ
+                </Link>
+                <Link href="/collections/nu?category=giay-the-thao" className="block px-4 py-2 hover:bg-gray-100">
+                  Giày Nữ
+                </Link>
+                <Link href="/collections/nu?category=quan-ao" className="block px-4 py-2 hover:bg-gray-100">
+                  Quần áo Nữ
+                </Link>
+              </div>
+            </div>
+            <div className="relative group">
+              <Link href="/pages/thuong-hieu" className="hover:text-red-500 transition flex items-center gap-1">
+                Thương hiệu
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+              <div className="absolute top-full left-0 bg-white shadow-lg rounded-lg py-2 min-w-[200px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                 {brands.map((brand) => (
                   <Link
                     key={brand}
-                    href={`/thuong-hieu/${brand.toLowerCase().replace(' ', '-')}`}
+                    href={`/collections/${brand.toLowerCase().replace(/ /g, '-')}`}
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
                     {brand}
@@ -76,11 +114,11 @@ export default function Header() {
                 ))}
               </div>
             </div>
-            <Link href="/khuyen-mai" className="text-red-500 font-semibold">
-              Khuyến mãi
+            <Link href="/collections/uu-dai" className="hover:text-red-500 transition text-red-600 font-semibold">
+              Ưu Đãi
             </Link>
-            <Link href="/lien-he" className="hover:text-red-500 transition">
-              Liên hệ
+            <Link href="/blog" className="hover:text-red-500 transition">
+              Blog
             </Link>
           </nav>
 
@@ -115,16 +153,54 @@ export default function Header() {
               </Link>
               <div>
                 <button className="font-semibold mb-2 flex items-center gap-1">
-                  Thương hiệu
+                  Nam
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
                 <div className="pl-4 flex flex-col gap-2">
+                  <Link href="/collections/nam" className="text-gray-600 hover:text-red-500 font-bold">
+                    Tất cả Nam
+                  </Link>
+                  <Link href="/collections/nam?category=giay-the-thao" className="text-gray-600 hover:text-red-500">
+                    Giày Thể Thao
+                  </Link>
+                  <Link href="/collections/nam?category=giay-sneaker" className="text-gray-600 hover:text-red-500">
+                    Giày Sneaker
+                  </Link>
+                </div>
+              </div>
+              <div>
+                <button className="font-semibold mb-2 flex items-center gap-1">
+                  Nữ
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <div className="pl-4 flex flex-col gap-2">
+                  <Link href="/collections/nu" className="text-gray-600 hover:text-red-500 font-bold">
+                    Tất cả Nữ
+                  </Link>
+                  <Link href="/collections/nu?category=giay-the-thao" className="text-gray-600 hover:text-red-500">
+                    Giày Thể Thao
+                  </Link>
+                  <Link href="/collections/nu?category=giay-sneaker" className="text-gray-600 hover:text-red-500">
+                    Giày Sneaker
+                  </Link>
+                </div>
+              </div>
+              <div>
+                <Link href="/thuong-hieu" className="font-semibold mb-2 flex items-center gap-1 hover:text-red-500">
+                  Thương hiệu
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+                <div className="pl-4 flex flex-col gap-2">
                   {brands.map((brand) => (
                     <Link
                       key={brand}
-                      href={`/thuong-hieu/${brand.toLowerCase().replace(' ', '-')}`}
+                      href={`/collections/${brand.toLowerCase().replace(/ /g, '-')}`}
                       className="text-gray-600 hover:text-red-500"
                     >
                       {brand}
@@ -132,11 +208,11 @@ export default function Header() {
                   ))}
                 </div>
               </div>
-              <Link href="/khuyen-mai" className="text-red-500 font-semibold">
-                Khuyến mãi
+              <Link href="/collections/uu-dai" className="hover:text-red-500 transition text-red-600 font-semibold">
+                Ưu Đãi
               </Link>
-              <Link href="/lien-he" className="hover:text-red-500 transition">
-                Liên hệ
+              <Link href="/blog" className="hover:text-red-500 transition">
+                Blog
               </Link>
             </div>
           </nav>

@@ -1,25 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product, formatPrice } from '@/lib/products';
 import { useCart } from '@/context/CartContext';
 import ProductCard from './ProductCard';
+import Breadcrumb from './Breadcrumb';
 
 interface ProductDetailProps {
   product: Product;
   relatedProducts: Product[];
+  collection?: string;
 }
 
-export default function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
+export default function ProductDetail({ product, relatedProducts, collection }: ProductDetailProps) {
   const { addToCart } = useCart();
+  const router = useRouter();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'care'>('desc');
   const [showAdded, setShowAdded] = useState(false);
   const [showSizeError, setShowSizeError] = useState(false); // Lỗi chưa chọn size
 
-  const sizes = product.sizes ? product.sizes.split(', ') : [];
+  const sizes = product.sizes ? product.sizes.split('\n') : [];
 
   const handleAddToCart = () => {
     // Kiểm tra size - hiện lỗi inline thay vì alert
@@ -41,7 +45,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
       return;
     }
     addToCart(product, selectedSize || undefined);
-    window.location.href = '/cart';
+    router.push('/checkout');
   };
 
   // Khi chọn size thì tắt lỗi
@@ -50,31 +54,18 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
     setShowSizeError(false);
   };
 
+  const breadcrumbItems = collection ? [
+    { label: collection.toUpperCase(), href: `/collections/${collection}` },
+    { label: product.name }
+  ] : [
+    { label: product.brand, href: `/collections/${product.brand.toLowerCase().replace(/ /g, '-')}` },
+    { label: product.name }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumb */}
-      <nav className="text-sm mb-6" aria-label="Breadcrumb">
-        <ol className="flex items-center space-x-2 flex-wrap">
-          <li>
-            <Link href="/" className="text-gray-500 hover:text-red-500 transition">
-              Trang chủ
-            </Link>
-          </li>
-          <li className="text-gray-300">/</li>
-          <li>
-            <Link
-              href={`/thuong-hieu/${product.brand.toLowerCase().replace(' ', '-')}`}
-              className="text-gray-500 hover:text-red-500 transition"
-            >
-              {product.brand}
-            </Link>
-          </li>
-          <li className="text-gray-300">/</li>
-          <li className="text-gray-900 font-medium truncate max-w-[200px]">
-            {product.name}
-          </li>
-        </ol>
-      </nav>
+      <Breadcrumb items={breadcrumbItems} />
 
       {/* Product Detail */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -310,7 +301,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
           <h2 className="text-2xl font-bold mb-8">Sản phẩm {product.brand} khác</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {relatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} collection={collection} />
             ))}
           </div>
         </section>

@@ -7,28 +7,37 @@ import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   product: Product;
+  collection?: string;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const { cartItems, addToCart, removeFromCart } = useCart();
+export default function ProductCard({ product, collection }: ProductCardProps) {
+  const { items, addToCart, removeItem } = useCart();
   
   // Check xem product có trong cart không
-  const inCart = cartItems.some(item => item.product.id === product.id);
+  const inCart = items.some(item => item.product.id === product.id);
 
   const handleToggleCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (inCart) {
-      removeFromCart(product.id);
+      // Find the specific item to remove (might have multiple sizes, but we'll just remove the first one found or all)
+      const itemToRemove = items.find(item => item.product.id === product.id);
+      if (itemToRemove) {
+        removeItem(product.id, itemToRemove.size);
+      }
     } else {
-      addToCart(product);
+      // Default to first size if available
+      const defaultSize = product.sizes ? product.sizes.split('\n')[0] : undefined;
+      addToCart(product, defaultSize);
     }
   };
 
+  const productUrl = `/collections/${collection || product.brand.toLowerCase().replace(/ /g, '-')}/products/${product.slug}`;
+
   return (
-    <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+    <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col relative">
       {/* Image */}
-      <Link href={`/san-pham/${product.slug}`} className="block flex-shrink-0">
+      <Link href={productUrl} className="block flex-shrink-0">
         <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
           <Image
             src={product.image}
@@ -42,38 +51,38 @@ export default function ProductCard({ product }: ProductCardProps) {
               -{product.discount}%
             </span>
           )}
-          
-          {/* Nút tròn nhỏ góc phải - Toggle thêm/hủy */}
-          <button
-            onClick={handleToggleCart}
-            className={`absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-              inCart
-                ? 'bg-green-500 text-white scale-100'
-                : 'bg-white text-gray-800 opacity-0 group-hover:opacity-100 hover:bg-black hover:text-white scale-90 group-hover:scale-100'
-            }`}
-            title={inCart ? 'Xóa khỏi giỏ' : 'Thêm vào giỏ'}
-          >
-            {inCart ? (
-              // Icon check ✓
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              // Icon +
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            )}
-          </button>
         </div>
       </Link>
+      
+      {/* Nút tròn nhỏ góc phải - Toggle thêm/hủy (Đã đưa ra ngoài thẻ Link) */}
+      <button
+        onClick={handleToggleCart}
+        className={`absolute top-[55%] right-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 z-10 ${
+          inCart
+            ? 'bg-green-500 text-white scale-100'
+            : 'bg-white text-gray-800 opacity-0 group-hover:opacity-100 hover:bg-black hover:text-white scale-90 group-hover:scale-100'
+        }`}
+        title={inCart ? 'Xóa khỏi giỏ' : 'Thêm vào giỏ'}
+      >
+        {inCart ? (
+          // Icon check ✓
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          // Icon +
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        )}
+      </button>
 
       {/* Info */}
       <div className="p-4 flex flex-col flex-grow">
         <span className="text-xs text-gray-400 uppercase tracking-wider font-medium">
           {product.brand}
         </span>
-        <Link href={`/san-pham/${product.slug}`}>
+        <Link href={productUrl}>
           <h3 className="font-semibold mt-1 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors leading-tight">
             {product.name}
           </h3>
@@ -88,11 +97,6 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             )}
           </div>
-          {product.sizes && (
-            <p className="text-xs text-gray-400 mt-1 line-clamp-1">
-              {product.sizes}
-            </p>
-          )}
         </div>
       </div>
     </div>
