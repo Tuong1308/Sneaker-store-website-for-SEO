@@ -17,13 +17,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/khuyen-mai`,
+      url: `${baseUrl}/uu-dai`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/lien-he`,
+      url: `${baseUrl}/ho-tro`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Trang sản phẩm
   const productPages = products.map((product) => ({
-    url: `${baseUrl}/san-pham/${product.slug}`,
+    url: `${baseUrl}/products/${product.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.7,

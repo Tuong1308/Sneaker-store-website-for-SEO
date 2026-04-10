@@ -109,6 +109,7 @@ const postOrder = async (req, res) => {
       orderTime,
       paymentMethod,
       totalPrice,
+      status: "pending",
     });
     return res.status(200).send("create order successfully");
   } catch (error) {

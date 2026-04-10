@@ -31,6 +31,7 @@ connectDb();
 
 //middleware router
 app.use("/auth/admin", userRoute);
+app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
 app.use("/api", productRoute);
 app.use("/auth/admin", voucherRoute);

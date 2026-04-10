@@ -54,27 +54,6 @@ export default function ProductCard({ product, collection }: ProductCardProps) {
               -{product.discount}%
             </span>
           )}
-          
-          {/* Nút Add to Cart */}
-          <button
-            onClick={handleToggleCart}
-            className={`absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-              inCart
-                ? 'bg-green-500 text-white scale-100'
-                : 'bg-white text-gray-800 opacity-0 group-hover:opacity-100 hover:bg-black hover:text-white scale-90 group-hover:scale-100'
-            }`}
-            title={inCart ? 'Xóa khỏi giỏ' : 'Thêm vào giỏ'}
-          >
-            {inCart ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            )}
-          </button>
         </div>
       </Link>
 
@@ -100,11 +79,6 @@ export default function ProductCard({ product, collection }: ProductCardProps) {
               </span>
             )}
           </div>
-          {product.sizes && (
-            <p className="text-xs text-gray-400 mt-1 line-clamp-1">
-              {product.sizes}
-            </p>
-          )}
         </div>
       </div>
     </div>

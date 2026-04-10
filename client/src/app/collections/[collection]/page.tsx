@@ -89,7 +89,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
       "Săn ngay những đôi giày sneaker chính hãng với mức giá cực kỳ hấp dẫn. Số lượng có hạn!";
     filteredProducts = filteredProducts.filter((p) => p.discount !== null);
   } else if (collection === "all") {
-    isBrandPage = true;
+    isBrandPage = false;
     collectionTitle = "Tất cả sản phẩm";
     collectionDescription =
       "Khám phá toàn bộ bộ sưu tập giày sneaker chính hãng với đa dạng mẫu mã, phong cách và mức giá phù hợp với mọi đối tượng khách hàng.";
@@ -112,7 +112,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
   // Extract all unique sizes for the filter based on CURRENT collection products
   const allSizes = Array.from(
     new Set(
-      filteredProducts.flatMap((p) => (p.sizes ? p.sizes.split("\n") : [])),
+      filteredProducts.flatMap((p) => (p.sizes ? p.sizes.split(", ") : [])),
     ),
   ).sort();
 
@@ -134,7 +134,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
     filteredProducts = filteredProducts.filter(
       (p) =>
         p.sizes &&
-        sizesToFilter.some((size) => p.sizes.split("\n").includes(size)),
+        sizesToFilter.some((size) => p.sizes.split(", ").includes(size)),
     );
   }
 
