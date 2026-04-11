@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/api";
+import Breadcrumb from "@/components/Breadcrumb";
 
 interface UserInfo {
   _id: string;
@@ -281,20 +282,7 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Breadcrumb */}
-      <nav className="mb-8">
-        <ol className="flex items-center gap-2 text-sm">
-          <li>
-            <Link
-              href="/"
-              className="text-gray-500 hover:text-red-500 transition"
-            >
-              Trang chủ
-            </Link>
-          </li>
-          <li className="text-gray-300">/</li>
-          <li className="text-gray-900 font-medium">Tài khoản của tôi</li>
-        </ol>
-      </nav>
+      <Breadcrumb items={[{ label: "Tài khoản" }]} />
 
       <h1 className="text-3xl md:text-4xl font-bold mb-8">Tài khoản của tôi</h1>
 
@@ -591,9 +579,22 @@ export default function ProfilePage() {
                           {formatPrice(order.totalPrice)}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                            {order.status}
-                          </span>
+                          {(() => {
+                            const statusMap: Record<string, { label: string; color: string }> = {
+                              pending:   { label: "Chờ xác nhận", color: "bg-yellow-100 text-yellow-700" },
+                              confirmed: { label: "Đã xác nhận",  color: "bg-blue-100 text-blue-700" },
+                              shipping:  { label: "Đang giao",    color: "bg-purple-100 text-purple-700" },
+                              delivered: { label: "Đã giao",      color: "bg-green-100 text-green-700" },
+                              completed: { label: "Hoàn thành",   color: "bg-green-100 text-green-700" },
+                              cancelled: { label: "Đã huỷ",       color: "bg-red-100 text-red-700" },
+                            };
+                            const info = statusMap[order.status ?? "pending"] ?? statusMap["pending"];
+                            return (
+                              <span className={`px-3 py-1 text-sm font-medium rounded-full ${info.color}`}>
+                                {info.label}
+                              </span>
+                            );
+                          })()}
                         </td>
                       </tr>
                     ))}

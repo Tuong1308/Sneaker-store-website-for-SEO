@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Product, formatPrice } from "@/lib/products";
+import { Product, formatPrice } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {

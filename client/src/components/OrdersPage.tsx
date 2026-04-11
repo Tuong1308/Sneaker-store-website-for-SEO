@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/api";
+import Breadcrumb from "@/components/Breadcrumb";
 
 interface OrderItem {
   product: {
@@ -114,6 +115,7 @@ export default function OrdersPage() {
       confirmed: { label: "Đã xác nhận",  color: "text-blue-600 bg-blue-50 border-blue-200" },
       shipping:  { label: "Đang giao",    color: "text-purple-600 bg-purple-50 border-purple-200" },
       delivered: { label: "Đã giao",      color: "text-green-600 bg-green-50 border-green-200" },
+      completed: { label: "Hoàn thành",   color: "text-green-600 bg-green-50 border-green-200" },
       cancelled: { label: "Đã huỷ",       color: "text-red-600 bg-red-50 border-red-200" },
     };
     return map[status ?? "pending"] ?? map["pending"];
@@ -135,23 +137,12 @@ export default function OrdersPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Breadcrumb */}
-      <nav className="mb-8">
-        <ol className="flex items-center gap-2 text-sm">
-          <li>
-            <Link href="/" className="text-gray-500 hover:text-red-500 transition">
-              Trang chủ
-            </Link>
-          </li>
-          <li className="text-gray-300">/</li>
-          <li>
-            <Link href="/profile" className="text-gray-500 hover:text-red-500 transition">
-              Tài khoản
-            </Link>
-          </li>
-          <li className="text-gray-300">/</li>
-          <li className="text-gray-900 font-medium">Đơn hàng</li>
-        </ol>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: "Tài khoản", href: "/profile" },
+          { label: "Đơn hàng" },
+        ]}
+      />
 
       <h1 className="text-3xl md:text-4xl font-bold mb-2">Đơn hàng của tôi</h1>
       <p className="text-gray-600 mb-8">

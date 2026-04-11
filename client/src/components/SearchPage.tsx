@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "./ProductCard";
-import { Product } from "@/lib/products";
+import { Product } from "@/lib/api";
 import Link from "next/link";
 import ShopFilter from "@/components/ShopFilter";
 import ShopSort from "@/components/ShopSort";
@@ -100,7 +100,9 @@ export default function SearchPage() {
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[đĐ]/g, "d")
         .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-"),
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .trim(),
       category: p.category,
       description: p.description,
       sizes: Object.keys(p.sizes || {})

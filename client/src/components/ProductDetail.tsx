@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Product, formatPrice } from "@/lib/products";
+import { Product, formatPrice } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import ProductCard from "./ProductCard";
@@ -88,64 +88,59 @@ export default function ProductDetail({
     fetchProduct();
   }, [propProduct, params.id]);
 
-  // Convert sizes object thành array để render
-  const getSizeArray = (): string[] => {
-    if (!product) return [];
+  // Ưu tiên đọc sizesObj (có quantity thật từ DB), fallback về sizes object
+  const getSizeMap = (): Record<string, number> => {
+    if (!product) return {};
 
-    if (!("sizes" in product)) return [];
+    const normalizeKey = (key: string): string => {
+      const match = key.match(/^US(\d+)(?:_(\d+))?$/i);
+      if (match) return match[2] ? `US ${match[1]}.${match[2]}` : `US ${match[1]}`;
+      return key;
+    };
 
-    const sizesData = product.sizes;
-    console.log("RAW SIZES DATA:", JSON.stringify(sizesData)); // <-- xem log này
+    const result: Record<string, number> = {};
 
-    let rawSizes: string[] = [];
-
-    if (typeof sizesData === "string") {
-      rawSizes = [sizesData];
-    } else if (Array.isArray(sizesData)) {
-      rawSizes = sizesData.map(String);
-    } else if (typeof sizesData === "object" && sizesData !== null) {
-      rawSizes = Object.entries(sizesData as Record<string, number>)
-        .filter(([_, v]) => v > 0)
-        .map(([k]) => k);
+    // 1. sizesObj: Product từ api.ts, có quantity thật { US6: 0, US6_5: 2, ... }
+    const sizesObj = "sizesObj" in product ? (product as Product).sizesObj : undefined;
+    if (sizesObj && typeof sizesObj === "object") {
+      for (const [key, val] of Object.entries(sizesObj as Record<string, number>)) {
+        result[normalizeKey(key)] = Number(val ?? 0);
+      }
+      return result;
     }
 
-    // Tách mọi chuỗi chứa nhiều size
-    const result: string[] = [];
-    for (const raw of rawSizes) {
-      if (raw.includes(", ")) {
-        result.push(
-          ...raw
-            .split(", ")
-            .map((s) => s.trim())
-            .filter(Boolean),
-        );
-      } else {
-        // Tách theo pattern "US X" hoặc số đơn giản
-        const parts = raw
-          .split(/(?=US\s[\d.]+|(?<!\d)\d{2}(?!\d))/g)
-          .map((s) => s.trim())
-          .filter(Boolean);
-        result.push(...parts);
+    // 2. Fallback: BackendProduct.sizes là object { US6: qty, ... }
+    if ("sizes" in product) {
+      const sizesData = (product as BackendProduct).sizes;
+      if (typeof sizesData === "object" && sizesData !== null && !Array.isArray(sizesData)) {
+        for (const [key, val] of Object.entries(sizesData as Record<string, number>)) {
+          result[normalizeKey(key)] = Number(val ?? 0);
+        }
+        return result;
       }
     }
 
-    console.log("PARSED SIZES:", result); // <-- kết quả sau parse
     return result;
   };
 
-  const sizes = getSizeArray();
+  const sizeMap = getSizeMap();
+  const sizes = Object.keys(sizeMap);
+  const selectedQty = selectedSize ? (sizeMap[selectedSize] ?? 0) : null;
 
   const handleAddToCart = () => {
     if (!product) return;
-
-    // Kiểm tra size - hiện lỗi inline thay vì alert
     if (sizes.length > 0 && !selectedSize) {
       setShowSizeError(true);
       setTimeout(() => setShowSizeError(false), 3000);
       return;
     }
-
+    if (selectedSize && (sizeMap[selectedSize] ?? 0) <= 0) {
+      setShowSizeError(true);
+      setTimeout(() => setShowSizeError(false), 3000);
+      return;
+    }
     addToCart(product as Product, selectedSize || undefined);
+    setShowAdded(true);
     setTimeout(() => setShowAdded(false), 2000);
   };
 
@@ -155,21 +150,23 @@ export default function ProductDetail({
       setTimeout(() => setShowSizeError(false), 3000);
       return;
     }
-
+    if (selectedSize && (sizeMap[selectedSize] ?? 0) <= 0) {
+      setShowSizeError(true);
+      setTimeout(() => setShowSizeError(false), 3000);
+      return;
+    }
     if (!isAuthenticated || !user || !token) {
       router.push("/login");
       return;
     }
-
     if (!product) return;
-
-    // Add product to cart and redirect to checkout
     addToCart(product as Product, selectedSize || undefined, 1);
     router.push("/checkout");
   };
 
-  // Khi chọn size thì tắt lỗi
+  // Khi chọn size thì tắt lỗi, không cho chọn size hết hàng
   const handleSelectSize = (size: string) => {
+    if ((sizeMap[size] ?? 0) <= 0) return;
     setSelectedSize(size === selectedSize ? null : size);
     setShowSizeError(false);
   };
@@ -307,27 +304,28 @@ export default function ProductDetail({
             )}
           </div>
 
-          {/* Sizes - có hiệu ứng lỗi */}
           {sizes.length > 0 && (
             <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
                 <h3 className="font-semibold">Kích thước:</h3>
-                {selectedSize && (
-                  <span className="text-red-600 font-bold">{selectedSize}</span>
+                {selectedSize ? (
+                  <>
+                    <span className="font-bold text-gray-900">{selectedSize}</span>
+                    <span className="text-gray-400">·</span>
+                    <h3 className="text-base font-semibold">
+                      Kho:{" "}
+                      <span className={selectedQty && selectedQty <= 2 ? "text-red-500 font-bold" : "text-green-600 font-bold"}>
+                        {selectedQty}
+                      </span>
+                    </h3>
+                  </>
+                ) : (
+                  <span className="text-sm text-gray-400"></span>
                 )}
-                {/* Thông báo lỗi inline */}
                 {showSizeError && (
                   <span className="text-red-500 text-sm font-medium animate-pulse flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                       />
                     </svg>
@@ -335,24 +333,29 @@ export default function ProductDetail({
                   </span>
                 )}
               </div>
-              <div
-                className={`flex flex-wrap gap-2 p-3 rounded-xl transition-all duration-300 ${
-                  showSizeError ? "bg-red-50 ring-2 ring-red-300" : ""
-                }`}
-              >
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => handleSelectSize(size)}
-                    className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                      selectedSize === size
-                        ? "bg-black text-white shadow-lg scale-105"
-                        : "border border-gray-300 hover:border-black hover:shadow-md"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+              <div className={`flex flex-wrap gap-2 p-3 rounded-xl transition-all duration-300 ${showSizeError ? "bg-red-50 ring-2 ring-red-300" : ""}`}>
+                {sizes.map((size) => {
+                  const qty = sizeMap[size] ?? 0;
+                  const outOfStock = qty <= 0;
+                  const lowStock = qty > 0 && qty <= 2;
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => handleSelectSize(size)}
+                      disabled={outOfStock}
+                      title={outOfStock ? "Hết hàng" : `Còn ${qty} đôi`}
+                      className={`relative px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+                        outOfStock
+                          ? "border border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through"
+                          : selectedSize === size
+                          ? "bg-black text-white shadow-lg scale-105"
+                          : "border border-gray-300 hover:border-black hover:shadow-md"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

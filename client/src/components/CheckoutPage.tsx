@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/api";
 
 interface ShippingAddress {
   fullName: string;
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: user?.userName || "",
-    tphone: "",
+    telephone: "",
     street: "",
     city: "",
     state: "",
@@ -108,7 +108,7 @@ export default function CheckoutPage() {
           fullName: shippingAddress.fullName,
           telephone: shippingAddress.telephone,
           address:
-            `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state} || '' `.trim(),
+            `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}`.trim(),
         },
         note: note.trim(),
         orderTime: new Date().toISOString(),

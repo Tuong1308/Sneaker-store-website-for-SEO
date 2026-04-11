@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getAllProducts, getAllBrands, getSaleProducts } from '@/lib/api';
-import { Product } from '@/lib/products';
+import { Product } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 import BrandFilter from '@/components/BrandFilter';
 

@@ -1,8 +1,39 @@
-import { Product } from './products';
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-// Interface cho data từ MongoDB
+// ── Interface frontend dùng ──────────────────────────────────────────────────
+export interface Product {
+  id: number;
+  _id?: string;
+  name: string;
+  slug: string;
+  brand: string;
+  price: number;
+  originalPrice: number | null;
+  discount: number | null;
+  image: string;
+  images: string[];
+  sizes: string;
+  sizesObj?: {
+    US6?: number;
+    US6_5?: number;
+    US7?: number;
+    US7_5?: number;
+    US8?: number;
+    US8_5?: number;
+    US9?: number;
+    US9_5?: number;
+    US10?: number;
+    US10_5?: number;
+  };
+  description: string;
+  specs: string;
+  careGuide: string;
+  storageGuide: string;
+  category: string;
+  quantity: number;
+}
+
+// ── Interface MongoDB trả về ─────────────────────────────────────────────────
 interface MongoProduct {
   _id: string;
   productName: string;
@@ -31,7 +62,7 @@ interface MongoProduct {
   images?: string[];
 }
 
-// Tạo slug từ tên sản phẩm
+// ── Helpers ──────────────────────────────────────────────────────────────────
 function createSlug(name: string): string {
   return name
     .toLowerCase()
@@ -44,20 +75,15 @@ function createSlug(name: string): string {
     .trim();
 }
 
-// Chuyển sizes object thành string - hiện tất cả sizes có trong object
 function sizesToString(sizes?: MongoProduct['sizes']): string {
   if (!sizes || typeof sizes !== 'object') return '';
-  
-  // Lấy tất cả sizes từ object, format đẹp
   const sizeOrder = ['US6', 'US6_5', 'US7', 'US7_5', 'US8', 'US8_5', 'US9', 'US9_5', 'US10', 'US10_5'];
-  const availableSizes = sizeOrder
-    .filter(size => size in sizes) // Chỉ lấy sizes có trong object
-    .map(size => size.replace('_', '.').replace('US', 'US '));
-  
-  return availableSizes.join(', ');
+  return sizeOrder
+    .filter((s) => s in sizes)
+    .map((s) => s.replace('_', '.').replace('US', 'US '))
+    .join(', ');
 }
 
-// Map từ MongoDB format sang Frontend format
 function mapMongoToProduct(item: MongoProduct, index: number): Product {
   return {
     id: index + 1,
@@ -81,12 +107,18 @@ function mapMongoToProduct(item: MongoProduct, index: number): Product {
   };
 }
 
-// Lấy tất cả sản phẩm
+// ── Format tiền ──────────────────────────────────────────────────────────────
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(price);
+}
+
+// ── API functions ────────────────────────────────────────────────────────────
 export async function getAllProductsFromAPI(): Promise<Product[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/product`, {
-      cache: 'no-store',
-    });
+    const res = await fetch(`${API_BASE_URL}/api/product`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data: MongoProduct[] = await res.json();
     return data.map((item, index) => mapMongoToProduct(item, index));
@@ -96,12 +128,9 @@ export async function getAllProductsFromAPI(): Promise<Product[]> {
   }
 }
 
-// Lấy sản phẩm theo ID (MongoDB _id)
 export async function getProductById(id: string): Promise<Product | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/product/${id}`, {
-      cache: 'no-store',
-    });
+    const res = await fetch(`${API_BASE_URL}/api/product/${id}`, { cache: 'no-store' });
     if (!res.ok) return null;
     const data: MongoProduct = await res.json();
     return mapMongoToProduct(data, 0);
@@ -111,35 +140,30 @@ export async function getProductById(id: string): Promise<Product | null> {
   }
 }
 
-// Lấy sản phẩm theo slug (tìm trong all products)
 export async function getProductBySlugFromAPI(slug: string): Promise<Product | null> {
   const products = await getAllProductsFromAPI();
   return products.find((p) => p.slug === slug) ?? null;
 }
 
-// Lấy sản phẩm theo brand
 export async function getProductsByBrandFromAPI(brand: string): Promise<Product[]> {
   const products = await getAllProductsFromAPI();
   return products.filter(
-    (p) => p.brand.toLowerCase().replace(' ', '-') === brand.toLowerCase() ||
-           p.brand.toLowerCase() === brand.toLowerCase()
+    (p) =>
+      p.brand.toLowerCase().replace(' ', '-') === brand.toLowerCase() ||
+      p.brand.toLowerCase() === brand.toLowerCase()
   );
 }
 
-// Lấy tất cả brands
 export async function getAllBrandsFromAPI(): Promise<string[]> {
   const products = await getAllProductsFromAPI();
-  const brands = [...new Set(products.map((p) => p.brand))];
-  return brands.sort();
+  return [...new Set(products.map((p) => p.brand))].sort();
 }
 
-// Lấy tất cả slugs (cho generateStaticParams)
 export async function getAllSlugsFromAPI(): Promise<string[]> {
   const products = await getAllProductsFromAPI();
   return products.map((p) => p.slug);
 }
 
-// Lấy sản phẩm đang sale
 export async function getSaleProductsFromAPI(): Promise<Product[]> {
   const products = await getAllProductsFromAPI();
   return products
@@ -147,7 +171,6 @@ export async function getSaleProductsFromAPI(): Promise<Product[]> {
     .sort((a, b) => (b.discount || 0) - (a.discount || 0));
 }
 
-// Tìm kiếm sản phẩm
 export async function searchProductsFromAPI(query: string): Promise<Product[]> {
   try {
     const res = await fetch(
@@ -164,8 +187,7 @@ export async function searchProductsFromAPI(query: string): Promise<Product[]> {
   }
 }
 
-//BACKWARD COMPATIBLE EXPORTS
-// Giữ tên cũ để không phải sửa nhiều file
+// ── Backward compatible exports (giữ tên cũ) ────────────────────────────────
 export const getAllProducts = getAllProductsFromAPI;
 export const getProductBySlug = getProductBySlugFromAPI;
 export const getProductsByBrand = getProductsByBrandFromAPI;

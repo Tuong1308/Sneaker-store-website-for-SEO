@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { getAllBrands, searchProducts } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { formatPrice, Product } from "@/lib/products";
+import { formatPrice, Product } from "@/lib/api";
 import Image from "next/image";
 
 // SVG Icons
@@ -181,16 +181,17 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="text-2xl font-bold">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 object-contain">
               <Image
-                src="/UITSneakers.png"
+                src="/logo_UITSneaker_v2.png"
                 alt="UIT Sneakers Logo"
                 width={125}
                 height={125}
                 priority
                 className="object-contain"
+                style={{ height: '66px' }} 
               />
-              UIT<span className="text-red-500">SNEAKERS</span>
+              {/* UIT<span className="text-red-500">SNEAKERS</span> */}
             </div>
           </Link>
 
